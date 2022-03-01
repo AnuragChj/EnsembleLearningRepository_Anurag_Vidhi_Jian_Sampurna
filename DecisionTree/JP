@@ -1,1 +1,37 @@
 
+import numpy as np
+import pandas as pd
+
+class Node:
+  def __init__(self, Y: list, X: pd.DataFrame, min_samples_split=None, # This will represent the root node 
+               max_depth=None, level=None, nodetype=None):  # But same attributes will be re-used for child nodes
+    
+    # initialize left and right nodes as none, since the first instance will be the root node
+    self.left = None
+    self.right = None
+
+    # assigning arguments into instance attributes of the node (default max depth is 10, default min samples is 25)
+    self.X = X
+    self.Y = Y
+    self.md = max_depth if max_depth != None else 10
+    self.mss = min_samples_split if min_samples_split != None else 25
+    self.nodetype = nodetype if nodetype != None else 'root node'
+
+
+    # we need this later to recursively add leaves to the tree and monitor its depth
+    self.level = level if level != None else 0 
+
+    # count of observations falling under each unique label, and sort them in ascending
+    self.counts = dict(self.Y.value_counts())
+    self.sorted_counts = list(sorted(self.counts, key = lambda x:x[1])) # sort by value count, not by label name
+
+    # get gini score
+    self.gini = self.gini_impurity() ## Define gini_impurity function later down
+
+    # majority class of each node (also the predicted class for a node with no more children nodes)
+    # Get the majority class if the node has at least 1 class, else return None
+    self.y_pred = self.sorted_counts[-1][0] if len(self.sorted_counts) > 0 else None 
+
+    # number of obs in a node
+    self.n = len(Y)
+
