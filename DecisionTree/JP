@@ -35,3 +35,4 @@ class Node:
     # number of obs in a node
     self.n = len(Y)
 
+ 
