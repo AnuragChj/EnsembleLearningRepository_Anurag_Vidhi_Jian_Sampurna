@@ -2,7 +2,7 @@
 import numpy as np
 import pandas as pd
 
-class Node:
+class DecisionTreeClassifier:
   def __init__(self, Y: list, X: pd.DataFrame, min_samples_split=None, # This will represent the root node 
                max_depth=None, level=None, nodetype=None):  # But same attributes will be re-used for child nodes
     
