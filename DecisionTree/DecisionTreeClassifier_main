@@ -50,6 +50,7 @@ class DecisionTreeClassifier:
 
 
   #function to get the gini of a list of class counts
+  @staticmethod
   def calculate_gini(counts_list): 
 
     n = sum(counts_list)
