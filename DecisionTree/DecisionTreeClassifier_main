@@ -12,6 +12,7 @@ class DecisionTreeClassifier:
     # assigning arguments into instance attributes of the node (default max depth is 10, default min samples is 25)
     self.X = X
     self.Y = Y
+    self.features = list(self.X.columns)
     self.md = max_depth if max_depth != None else 10
     self.mss = min_samples_split if min_samples_split != None else 25
     self.nodetype = nodetype if nodetype != None else 'root node'
@@ -25,7 +26,7 @@ class DecisionTreeClassifier:
     self.sorted_counts = list(sorted(self.counts, key = lambda x:x[1])) # sort by value count, not by label name
 
     # get gini score
-    self.gini = self.gini() ## Define gini_impurity function later down
+    self.gini = self.gini_() ## Define gini_impurity function later down
 
     # majority class of each node (also the predicted class for a node with no more children nodes)
     # Get the majority class if the node has at least 1 class, else return None
@@ -38,7 +39,7 @@ class DecisionTreeClassifier:
     self.classes = sorted(list(dict.fromkeys(list(Y))))
 
   #function to get the gini of a node
-  def gini(self): 
+  def gini_(self): 
     
     class_counts = []
     for i in self.counts.items():
@@ -73,3 +74,54 @@ class DecisionTreeClassifier:
     gini = 1 - sumprobs
     
     return gini
+
+  # finds the best split given features and classes, using max gain of gini impurity algorithm
+  def find_split(self):
+
+    data = self.X.copy()
+    data['classes'] = self.Y
+    parent_gini = self.gini_()
+    gain = 0 # initialize gain (change in gini impurity) as zero
+
+    # initialize best feature and best value as none
+    best_feature = None
+    best_value = None
+
+    # iterate over each feature to find best feature for maximizing gini gain
+    for i in self.features:
+        # drop NAs
+        X_data = data.dropna()
+
+        # sort by feature values in ascending order
+        X_data = X_data.sort_values(i) 
+
+        # get the mid (average) between 2 neighboring numerical values of the same feature
+        x_mid = list(pd.Series(X_data[i].unique()).rolling(2).mean())[1:]
+
+        # iterate over each average of 2 neighboring values to find best split within this feature for maximizing gini gain
+        for j in x_mid:
+
+            left_counts = dict(X_data[X_data[i]<j]['classes'].value_counts()) # e.g. {class1 : 747, class2: 4825}
+            right_counts = dict(X_data[X_data[i]>=j]['classes'].value_counts())
+
+            left_list = [k[1] for k in left_counts.items()] # e.g. [747, 4825]
+            right_list = [k[1] for k in right_counts.items()]
+            left_gini = self.calculate_gini(left_list)
+            right_gini = self.calculate_gini(right_list)
+
+            weighted_gini = (
+                (left_gini*sum(left_list))/(sum(left_list)+sum(right_list))) + (
+                    (right_gini*sum(right_list))/(sum(left_list)+sum(right_list))
+                    ) # just the formula to get the weighted gini
+            
+            gini_gain = parent_gini - weighted_gini # getting the gini gain
+
+            # Checking if this is the best split so far 
+            if gini_gain > gain:
+                split_feature = i
+                split_value = j 
+                gain = gini_gain
+            else:
+              pass
+
+    return (split_feature, split_value)
