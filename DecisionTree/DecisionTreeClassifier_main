@@ -1,10 +1,9 @@
-
 import numpy as np
 import pandas as pd
 
 class DecisionTreeClassifier:
   def __init__(self, Y: list, X: pd.DataFrame, min_samples_split=None, # This will represent the root node 
-               max_depth=None, level=None, nodetype=None):  # But same attributes will be re-used for child nodes
+               max_depth=None, depth=None, nodetype=None):  # But same attributes will be re-used for child nodes
     
     # initialize left and right nodes as none, since the first instance will be the root node
     self.left = None
@@ -19,14 +18,14 @@ class DecisionTreeClassifier:
 
 
     # we need this later to recursively add leaves to the tree and monitor its depth
-    self.level = level if level != None else 0 
+    self.depth = depth if depth != None else 0 
 
     # count of observations falling under each unique label, and sort them in ascending
     self.counts = dict(self.Y.value_counts())
     self.sorted_counts = list(sorted(self.counts, key = lambda x:x[1])) # sort by value count, not by label name
 
     # get gini score
-    self.gini = self.gini_impurity() ## Define gini_impurity function later down
+    self.gini = self.gini() ## Define gini_impurity function later down
 
     # majority class of each node (also the predicted class for a node with no more children nodes)
     # Get the majority class if the node has at least 1 class, else return None
@@ -35,3 +34,41 @@ class DecisionTreeClassifier:
     # number of obs in a node
     self.n = len(Y)
 
+    # list of unique classes
+    self.classes = sorted(list(dict.fromkeys(list(Y))))
+
+  #function to get the gini of a node
+  def gini(self): 
+    
+    class_counts = []
+    for i in self.counts.items():
+      class_counts.append((i[0], i[1])) # e.g. [('spam', 747), ('ham', 4825)]
+    
+    counts_list = [class_counts[i][1] for i in range(len(class_counts))]
+
+    return self.calculate_gini(counts_list) # e.g. [747, 4825]
+
+
+  #function to get the gini of a list of class counts
+  def calculate_gini(counts_list): 
+
+    n = sum(counts_list)
+
+    if n == 0:
+        return 0.0
+
+    # probabilities of each class
+    probs = []
+    for i in counts_list:
+      probs.append(i/n)
+    
+    # gini formula 
+    sum_probs = []
+    for i in probs:
+      sum_probs.append(i**2)
+
+    sumprobs = sum(sum_probs)
+
+    gini = 1 - sumprobs
+    
+    return gini
