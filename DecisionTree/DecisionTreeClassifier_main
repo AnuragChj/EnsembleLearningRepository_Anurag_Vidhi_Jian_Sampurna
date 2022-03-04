@@ -1,13 +1,17 @@
 import numpy as np
 import pandas as pd
 
-class DecisionTreeClassifier:
-  def __init__(self, Y: list, X: pd.DataFrame, min_samples_split=None, # This will represent the root node 
+class DecisionTreeClassifier: # essentially this class is the class of a Node. We will pass methods on this node to make it split and grow
+  def __init__(self, X, Y, min_samples_split=None, # This will represent the root node 
                max_depth=None, depth=None, nodetype=None):  # But same attributes will be re-used for child nodes
     
     # initialize left and right nodes as none, since the first instance will be the root node
     self.left = None
     self.right = None
+
+    # initialize splitting features and values as None
+    self.split_feature = None
+    self.split_value = None
 
     # assigning arguments into instance attributes of the node (default max depth is 10, default min samples is 25)
     self.X = X
@@ -15,7 +19,7 @@ class DecisionTreeClassifier:
     self.features = list(self.X.columns)
     self.md = max_depth if max_depth != None else 10
     self.mss = min_samples_split if min_samples_split != None else 25
-    self.nodetype = nodetype if nodetype != None else 'root node'
+    self.nodetype = nodetype if nodetype != None else 'root_node'
 
 
     # we need this later to recursively add leaves to the tree and monitor its depth
@@ -125,3 +129,47 @@ class DecisionTreeClassifier:
               pass
 
     return (split_feature, split_value)
+
+  def train(self):
+    data = self.X.copy()
+    data['classes'] = self.Y
+
+    # based on hyperparameters, if max depth is not exceeded and if min samples are not activated, 
+    # we split the tree further
+    if (self.depth < self.md) and (self.n >= self.mss):
+
+        # we override the initialized value of None for the root node with the new feature and value. This will be done recursively for child nodes
+        split_feature, split_value = self.find_split()
+        if split_feature != None: # basically we do not continue splitting the tree if the gini gain is 0 (since split_feature would be None)
+            self.split_feature = split_feature
+            self.split_value = split_value
+
+            # we assign the separated and split data into the left and right nodes along with other instance attributes, while updating the depth
+            left_data = data[data[split_feature] <= split_value].copy()
+            right_data = data[data[split_feature] > split_value].copy()
+
+            left_node = DecisionTreeClassifier(
+                X = left_data[self.features], # e.g. a dataframe with only the feature columns of the node without classes
+                Y = list(left_data['classes'].values), # e.g. ['ham', 'spam', 'ham', 'spam', .....]
+                min_samples_split = self.mss,
+                max_depth = self.md,
+                depth = self.depth + 1, # update depth
+                node_type='left_node')
+
+            right_node = DecisionTreeClassifier(
+                X = right_data[self.features], # e.g. a dataframe with only the feature columns of the node without classes
+                Y = list(right_data['classes'].values), # e.g. ['ham', 'spam', 'ham', 'spam', .....]
+                min_samples_split = self.mss,
+                max_depth = self.md,
+                depth = self.depth + 1, # update depth
+                node_type='right_node')
+            
+            # now we tell the base node that it has 2 child nodes, 1 left and 1 right, and apply the train function to the 2 of them
+            self.left = left_node
+            self.right = right_node
+            self.left.train()
+            self.right.train()
+
+            # the train function will split the base node into left and right child nodes, and split the left and right child nodes into ...
+            # ... more child left and right nodes, until either min_samples_split is met or max_depth is reached ...
+            # ... then the algorithm stops. This way, the decision tree keeps growing by itself until a criterion is met
