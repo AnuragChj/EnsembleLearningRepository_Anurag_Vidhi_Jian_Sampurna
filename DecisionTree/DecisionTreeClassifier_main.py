@@ -125,8 +125,8 @@ class DecisionTreeClassifier: # essentially this class is the class of a Node. W
     gain = 0 # initialize gain (change in gini/entropy impurity) as zero
 
     # initialize best feature and best value as none
-    best_feature = None
-    best_value = None
+    split_feature = None
+    split_value = None
 
     # iterate over each feature to find best feature for maximizing gini gain
     for i in self.features:
@@ -233,3 +233,35 @@ class DecisionTreeClassifier: # essentially this class is the class of a Node. W
             # the train function will split the base node into left and right child nodes, and split the left and right child nodes into ...
             # ... more child left and right nodes, until either min_samples_split is met or max_depth is reached ...
             # ... then the algorithm stops. This way, the decision tree keeps growing by itself until a criterion is met
+
+
+  # function to compile all predictions into a list and give that list as output
+  def predict(self, X):
+
+    preds = []
+
+    for _, x in X.iterrows(): # for each row
+        feature_vals = {}
+        for i in self.features: # for each feature
+            feature_vals.update({i: x[i]}) # e.g.  {'Unnamed: 2': nan, 'Unnamed: 3': nan, 'Unnamed: 4': nan, 'v1': 'ham', 'v2': 4129412}
+
+        current = self
+
+        while current.depth < current.md:
+          split_feature = current.split_feature
+          split_value = current.split_value
+
+          if current.n < current.mss:
+              break 
+
+          # if less than split value goes to left node, else goes to right node
+          if (values.get(split_feature) < split_value):
+              if self.left is not None:
+                  current = current.left
+          else:
+              if self.right is not None:
+                  current = current.right
+
+        preds.append(current.y_pred) # one prediction for one row
+
+    return preds
