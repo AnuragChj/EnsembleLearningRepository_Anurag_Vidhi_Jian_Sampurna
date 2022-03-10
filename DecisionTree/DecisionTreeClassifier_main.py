@@ -124,7 +124,7 @@ class DecisionTreeClassifier: # essentially this class is the class of a Node. W
 
     data = self.X.copy()
     data['classes'] = self.Y
-    parent_loss = self.gini_entropy()
+    parent_loss = self.loss
     gain = 0 # initialize gain (change in gini/entropy impurity) as zero
 
     # initialize best feature and best value as none
