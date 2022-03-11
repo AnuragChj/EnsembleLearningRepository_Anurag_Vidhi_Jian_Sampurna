@@ -198,6 +198,7 @@ class DecisionTreeClassifier: # essentially this class is the class of a Node. W
   def train(self):
     data = self.X.copy()
     data['classes'] = self.Y
+    print("Current node:", self.nodetype)
 
     # based on hyperparameters, if max depth is not exceeded and if min samples are not activated, 
     # we split the tree further
@@ -208,7 +209,8 @@ class DecisionTreeClassifier: # essentially this class is the class of a Node. W
         if split_value != None: # basically we do not continue splitting the tree if the gini gain is 0 (since split_feature would be None)
             self.split_feature = split_feature
             self.split_value = split_value
-            print('depth =',self.depth, self.nodetype, split_feature, split_value)
+            print("Split at:",'depth =',self.depth, 'node_type =', self.nodetype)
+            print("Splitting feature:", split_feature, "Splitting value:", split_value)
 
             # we assign the separated and split data into the left and right nodes along with other instance attributes, while updating the depth
             left_data = data[data[split_feature] <= split_value].copy()
@@ -235,6 +237,12 @@ class DecisionTreeClassifier: # essentially this class is the class of a Node. W
             self.right = right_node
             self.left.train()
             self.right.train()
+        
+        else:
+          print("No best split, node ends here.")
+        
+    else:
+      print("Max depth or min samples breached. Training ends here.")
 
             # the train function will split the base node into left and right child nodes, and split the left and right child nodes into ...
             # ... more child left and right nodes, until either min_samples_split is met or max_depth is reached ...
