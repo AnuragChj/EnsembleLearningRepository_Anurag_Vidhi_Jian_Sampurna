@@ -205,7 +205,7 @@ class DecisionTreeClassifier: # essentially this class is the class of a Node. W
 
         # we override the initialized value of None for the root node with the new feature and value. This will be done recursively for child nodes
         split_feature, split_value = self.find_split()
-        if split_feature != None: # basically we do not continue splitting the tree if the gini gain is 0 (since split_feature would be None)
+        if split_value != None: # basically we do not continue splitting the tree if the gini gain is 0 (since split_feature would be None)
             self.split_feature = split_feature
             self.split_value = split_value
             print('depth =',self.depth, self.nodetype, split_feature, split_value)
@@ -216,7 +216,7 @@ class DecisionTreeClassifier: # essentially this class is the class of a Node. W
 
             left_node = DecisionTreeClassifier(
                 X = left_data[self.features], # e.g. a dataframe with only the feature columns of the node without classes
-                Y = pd.Series(left_data['classes'].values), # e.g. ['ham', 'spam', 'ham', 'spam', .....]
+                Y = left_data['classes'], # e.g. ['ham', 'spam', 'ham', 'spam', .....]
                 min_samples_split = self.mss,
                 max_depth = self.md,
                 depth = self.depth + 1, # update depth
@@ -224,7 +224,7 @@ class DecisionTreeClassifier: # essentially this class is the class of a Node. W
 
             right_node = DecisionTreeClassifier(
                 X = right_data[self.features], # e.g. a dataframe with only the feature columns of the node without classes
-                Y = pd.Series(right_data['classes'].values), # e.g. ['ham', 'spam', 'ham', 'spam', .....]
+                Y = right_data['classes'], # e.g. ['ham', 'spam', 'ham', 'spam', .....]
                 min_samples_split = self.mss,
                 max_depth = self.md,
                 depth = self.depth + 1, # update depth
