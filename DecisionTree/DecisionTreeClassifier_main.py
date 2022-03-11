@@ -211,6 +211,7 @@ class DecisionTreeClassifier: # essentially this class is the class of a Node. W
             self.split_value = split_value
             
             print("Splitting feature:", split_feature, '|', "Splitting value:", split_value)
+            print("------------------------------------------------------------")
 
             # we assign the separated and split data into the left and right nodes along with other instance attributes, while updating the depth
             left_data = data[data[split_feature] <= split_value].copy()
@@ -240,6 +241,7 @@ class DecisionTreeClassifier: # essentially this class is the class of a Node. W
         
         else:
           print("No best split, node ends here.")
+          print("------------------------------------------------------------")
         
     else:
       print("Max depth or min samples breached. Node ends here.")
