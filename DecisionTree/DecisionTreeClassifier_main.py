@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import copy
+import operator
 
 class DecisionTreeClassifier: # essentially this class is the class of a Node. We will pass methods on this node to make it split and grow
   def __init__(self, X, Y, min_samples_split=None, # This will represent the root node 
@@ -36,7 +37,10 @@ class DecisionTreeClassifier: # essentially this class is the class of a Node. W
 
     # count of observations falling under each unique label, and sort them in ascending
     self.counts = dict(self.Y.value_counts()) # e.g. {'versicolor': 747, 'virginica': 4785, 'dkfoasdkfo': 409}
-    self.sorted_counts = list(sorted(self.counts, key = lambda x:x[1])) # sort by value count, not by label name
+    # self.sorted_counts = list(sorted(self.counts, key = lambda x:x[1])) # sort by value count, not by label name
+    self.sorted_counts = []
+    for i in self.Y.value_counts().items():
+      self.sorted_counts.append(i[0])
 
     # get loss score
     self.loss = self.gini_entropy() 
@@ -198,7 +202,7 @@ class DecisionTreeClassifier: # essentially this class is the class of a Node. W
   def train(self):
     data = self.X.copy()
     data['classes'] = self.Y
-    print("Current node:", self.nodetype, '|', "Current depth:", self.depth)
+    print("Current node:", self.nodetype, '|', "Current depth:", self.depth, '|', 'Majority class:', self.y_pred)
 
     # based on hyperparameters, if max depth is not exceeded and if min samples are not activated, 
     # we split the tree further
