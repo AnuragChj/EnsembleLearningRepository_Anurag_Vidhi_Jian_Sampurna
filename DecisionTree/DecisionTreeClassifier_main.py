@@ -202,7 +202,7 @@ class DecisionTreeClassifier: # essentially this class is the class of a Node. W
   def train(self):
     data = self.X.copy()
     data['classes'] = self.Y
-    print("Current node:", self.nodetype, '|', "Current depth:", self.depth, '|', 'Majority class:', self.y_pred)
+    print("Current node:", self.nodetype, '|', "Current depth:", self.depth, '|', 'Majority class:', self.y_pred, '|', 'Gini/Entropy:', self.loss, '|', self.n)
 
     # based on hyperparameters, if max depth is not exceeded and if min samples are not activated, 
     # we split the tree further
@@ -249,6 +249,7 @@ class DecisionTreeClassifier: # essentially this class is the class of a Node. W
         
     else:
       print("Max depth or min samples breached. Node ends here.")
+      print("------------------------------------------------------------")
 
             # the train function will split the base node into left and right child nodes, and split the left and right child nodes into ...
             # ... more child left and right nodes, until either min_samples_split is met or max_depth is reached ...
